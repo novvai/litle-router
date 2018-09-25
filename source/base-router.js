@@ -37,10 +37,10 @@ export class BaseRouter {
         return this;
     }
 
-     /**
-     * Initial loading of the router
-     */
-    load(){
+    /**
+    * Initial loading of the router
+    */
+    load() {
         this.updateState(window.location.pathname);
 
         return this;
@@ -81,7 +81,7 @@ export class BaseRouter {
      * @param {string} state 
      */
     updateState(state) {
-        history.pushState(null, '', state);
+        history.pushState(null, '', `//${window.location.host}/${this.normalizeRoute(state)}`);
         window.dispatchEvent(new Event('nv-route-change'));
     }
 
@@ -129,14 +129,14 @@ export class BaseRouter {
 
         return result;
     }
-    
+
     /**
      * String normalizer, currently removing the "/" from the route
      * 
      * @param {string} route 
      */
     normalizeRoute(route) {
-        let result = route.substr(1);
+        let result = (route[0] == '/') ? route.substr(1) : route;
 
         return result;
     }
