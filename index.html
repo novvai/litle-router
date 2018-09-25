@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./dist/js/nv-router.bundle.js"></script>
+    <title>Document</title>
+    <style>
+        a.link{
+            cursor: pointer;
+            color:blue;
+        }
+    </style>
+</head>
+<body>
+    <a _href="/state" class="link">States</a>
+    <a _href="/products" class="link">Products</a>
+    <a _href="/product2s" class="link">Products</a>
+    
+    <script>
+        class StateChange{
+            refined(){
+                console.log('if this was a fantasy');
+            }
+        }
+        class Products{
+            handle(){
+                console.log('if this was a get shrect');
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function(){
+            let router= new NvRouter();
+            router.registerRoutes([
+                {
+                    path: 'state',
+                    func: 'StateChange@refined'
+                },{
+                    path: 'products',
+                    func: 'Products@handle'
+                }
+            ]).registerControllers({Products,StateChange}).load();
+        })
+        </script>
+</body>
+</html>
