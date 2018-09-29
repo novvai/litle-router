@@ -1,5 +1,5 @@
 export class ErrorPage{
     handle(){
-        console.log('FOCK');
+        console.error("Error[404]: Not found.")
     }
 }

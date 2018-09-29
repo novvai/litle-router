@@ -15,7 +15,7 @@
 </head>
 <body>
     <a _href="/state" class="link">States</a>
-    <a _href="/products" class="link">Products</a>
+    <a _href="/products/1" class="link">Products</a>
     <a _href="/product2s" class="link">Products</a>
     
     <script>
@@ -28,6 +28,10 @@
             handle(){
                 console.log('if this was a get shrect');
             }
+            
+            show(id){
+                console.log(id);
+            }
         }
         document.addEventListener("DOMContentLoaded", function(){
             let router= new NvRouter();
@@ -38,6 +42,9 @@
                 },{
                     path: 'products',
                     func: 'Products@handle'
+                },{
+                    path: 'products/{id}',
+                    func: 'Products@show'
                 }
             ]).registerControllers({Products,StateChange}).load();
         })

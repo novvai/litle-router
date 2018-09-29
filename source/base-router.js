@@ -9,7 +9,7 @@ export class BaseRouter {
     bootstrap() {
         this.links = e_l('a[_href]');
         this.handlerClasses = { ErrorPage };
-
+        this.requestParameters = [];
         this.routes = [
             {
                 path: 'not-found',
@@ -116,18 +116,51 @@ export class BaseRouter {
      */
     findRoute(route) {
         let result = null;
+        const currentRouteParts = route.split('/');
 
         this.routes.forEach(rEntry => {
-            if (rEntry.path == route) {
+            this.requestParameters = [];
+            const routeFragments = rEntry.path.split('/');
+
+            if (routeFragments.length != currentRouteParts.length) {
+                return;
+            }
+
+            const buildResponse = this.tryBuildingRoute(routeFragments, currentRouteParts);
+
+            if (buildResponse) {
                 result = Object.assign({}, rEntry);
             }
-        })
+        });
 
         if (result === null) {
             return this.defaultRoute();
         }
 
         return result;
+    }
+    
+    /**
+     * Check if the Fragments of selected route match the pattern of ActualRoute 
+     * that is requested from the browser
+     * 
+     * @param {Array} fragments 
+     * @param {Array} actualRoute
+     * 
+     * @returns boolean 
+     */
+    tryBuildingRoute(fragments, actualRoute) {
+        let matchedRoute = false;
+        for (let i = 0; i < fragments.length; i++) {
+            if (fragments[i] == actualRoute[i]) {
+                matchedRoute = true;
+            } else if (/({.*})/g.test(fragments[i])) {
+                this.requestParameters.push(actualRoute[i]);
+            } else {
+                matchedRoute = false;
+            }
+        }
+        return matchedRoute;
     }
 
     /**
@@ -178,7 +211,7 @@ export class BaseRouter {
     execute(controller) {
         try {
             const instance = new this.handlerClasses[controller.class]();
-            return instance[controller.method]();
+            return instance[controller.method](...this.requestParameters);
         } catch (error) {
             console.error(`${controller.class} not found.`)
         }
