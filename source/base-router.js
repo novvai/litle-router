@@ -7,7 +7,6 @@ export class BaseRouter {
     }
 
     bootstrap() {
-        this.links = e_l('a[_href]');
         this.handlerClasses = { ErrorPage };
         this.requestParameters = [];
         this.routes = [
@@ -19,7 +18,18 @@ export class BaseRouter {
 
         this.prepareBrowser();
 
-        this.links.forEach(element => {
+        this.attachListener();
+    }
+    
+    /**
+     * After Rendering add new listeners
+     */
+    attachListener(containerNode = null){
+        
+        let containerSelector = (containerNode !== null)? `${containerNode} a[_href]`:'a[_href]'; 
+        let links = e_l(containerSelector);
+        
+        links.forEach(element => {
             element.addEventListener('click', this.stopAll);
             element.addEventListener('click', this.invokeStateChange.bind(this));
         });
@@ -90,6 +100,7 @@ export class BaseRouter {
      * Listening for route change
      */
     prepareBrowser() {
+        window.addEventListener('popstate', this.iniRouteChange.bind(this));
         window.addEventListener('nv-route-change', this.iniRouteChange.bind(this));
     }
 
@@ -118,18 +129,19 @@ export class BaseRouter {
         let result = null;
         const currentRouteParts = route.split('/');
 
-        this.routes.forEach(rEntry => {
+        this.routes.some(rEntry => {
             this.requestParameters = [];
             const routeFragments = rEntry.path.split('/');
 
             if (routeFragments.length != currentRouteParts.length) {
-                return;
+                return false;
             }
 
             const buildResponse = this.tryBuildingRoute(routeFragments, currentRouteParts);
 
             if (buildResponse) {
-                result = Object.assign({}, rEntry);
+                result = {...rEntry};
+                return true;
             }
         });
 
@@ -151,15 +163,18 @@ export class BaseRouter {
      */
     tryBuildingRoute(fragments, actualRoute) {
         let matchedRoute = false;
+
         for (let i = 0; i < fragments.length; i++) {
             if (fragments[i] == actualRoute[i]) {
                 matchedRoute = true;
             } else if (/({.*})/g.test(fragments[i])) {
                 this.requestParameters.push(actualRoute[i]);
             } else {
+                this.requestParameters = [];
                 matchedRoute = false;
             }
         }
+
         return matchedRoute;
     }
 
@@ -210,7 +225,7 @@ export class BaseRouter {
      */
     execute(controller) {
         try {
-            const instance = new this.handlerClasses[controller.class]();
+            const instance = new this.handlerClasses[controller.class](this);
             return instance[controller.method](...this.requestParameters);
         } catch (error) {
             console.error(`${controller.class} not found.`)

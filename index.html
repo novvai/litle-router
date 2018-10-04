@@ -15,7 +15,7 @@
 </head>
 <body>
     <a _href="/state" class="link">States</a>
-    <a _href="/products/1" class="link">Products</a>
+    <a _href="/products/1/stamat/slavi" class="link">Products</a>
     <a _href="/product2s" class="link">Products</a>
     
     <script>
@@ -29,8 +29,8 @@
                 console.log('if this was a get shrect');
             }
             
-            show(id){
-                console.log(id);
+            show(id,s){
+                console.log(id,s);
             }
         }
         document.addEventListener("DOMContentLoaded", function(){
@@ -40,11 +40,11 @@
                     path: 'state',
                     func: 'StateChange@refined'
                 },{
+                    path: 'products/{id}/stamat/{pesho}',
+                    func: 'Products@show'
+                },{
                     path: 'products',
                     func: 'Products@handle'
-                },{
-                    path: 'products/{id}',
-                    func: 'Products@show'
                 }
             ]).registerControllers({Products,StateChange}).load();
         })
